@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BookNest - Online Book Store</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">
+                📚 BookNest
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#books">Books</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+
+            <button class="cart-btn" onclick="openCart()">
+                🛒 Cart <span id="cartCount">0</span>
+            </button>
+
+        </nav>
+    </header>
+
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+
+        <div class="hero-content">
+
+            <p class="welcome">WELCOME TO BOOKNEST</p>
+
+            <h1>
+                Discover Your Next
+                <span>Great Book</span>
+            </h1>
+
+            <p>
+                Explore thousands of amazing books,
+                discover new authors and build your
+                perfect collection.
+            </p>
+
+            <a href="#books" class="shop-btn">
+                Explore Books →
+            </a>
+
+        </div>
+
+        <div class="hero-book">
+            📖
+        </div>
+
+    </section>
+
+
+    <!-- Search Section -->
+    <section class="search-section">
+
+        <h2>Find Your Favourite Book</h2>
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by book title or author..."
+                onkeyup="searchBooks()"
+            >
+
+            <button onclick="searchBooks()">🔍 Search</button>
+
+        </div>
+
+    </section>
+
+
+    <!-- Categories -->
+    <section class="categories" id="categories">
+
+        <h2>Browse Categories</h2>
+
+        <div class="category-container">
+
+            <button onclick="filterCategory('all')">
+                📚 All Books
+            </button>
+
+            <button onclick="filterCategory('programming')">
+                💻 Programming
+            </button>
+
+            <button onclick="filterCategory('fiction')">
+                📖 Fiction
+            </button>
+
+            <button onclick="filterCategory('science')">
+                🔬 Science
+            </button>
+
+            <button onclick="filterCategory('business')">
+                💼 Business
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- Books Section -->
+    <section class="books-section" id="books">
+
+        <div class="section-heading">
+
+            <div>
+                <p class="small-title">OUR COLLECTION</p>
+                <h2>Popular Books</h2>
+            </div>
+
+        </div>
+
+
+        <div class="books-container" id="booksContainer">
+
+            <!-- Book 1 -->
+            <div class="book-card"
+                 data-category="programming"
+                 data-title="Java Programming"
+                 data-author="James Gosling">
+
+                <div class="book-cover programming-cover">
+                    <span>JAVA</span>
+                    <small>Programming</small>
+                </div>
+
+                <div class="book-info">
+
+                    <p class="category-name">PROGRAMMING</p>
+
+                    <h3>Java Programming</h3>
+
+                    <p class="author">
+                        by James Gosling
+                    </p>
+
+                    <div class="book-bottom">
+
+                        <strong>₹499</strong>
+
+                        <button onclick="addToCart('Java Programming',499)">
+                            Add +
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Book 2 -->
+            <div class="book-card"
+                 data-category="fiction"
+                 data-title="The Silent Forest"
+                 data-author="Emily Carter">
+
+                <div class="book-cover fiction-cover">
+                    <span>THE</span>
+                    <strong>SILENT</strong>
+                    <span>FOREST</span>
+                </div>
+
+                <div class="book-info">
+
+                    <p class="category-name">FICTION</p>
+
+                    <h3>The Silent Forest</h3>
+
+                    <p class="author">
+                        by Emily Carter
+                    </p>
+
+                    <div class="book-bottom">
+
+                        <strong>₹349</strong>
+
+                        <button onclick="addToCart('The Silent Forest',349)">
+                            Add +
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Book 3 -->
+            <div class="book-card"
+                 data-category="science"
+                 data-title="The Universe"
+                 data-author="Neil Carter">
+
+                <div class="book-cover science-cover">
+                    <span>THE</span>
+                    <strong>UNIVERSE</strong>
+                    <small>Science & Space</small>
+                </div>
+
+                <div class="book-info">
+
+                    <p class="category-name">SCIENCE</p>
+
+                    <h3>The Universe</h3>
+
+                    <p class="author">
+                        by Neil Carter
+                    </p>
+
+                    <div class="book-bottom">
+
+                        <strong>₹599</strong>
+
+                        <button onclick="addToCart('The Universe',599)">
+                            Add +
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Book 4 -->
+            <div class="book-card"
+                 data-category="business"
+                 data-title="Business Success"
+                 data-author="Robert King">
+
+                <div class="book-cover business-cover">
+                    <span>BUSINESS</span>
+                    <strong>SUCCESS</strong>
+                </div>
+
+                <div class="book-info">
+
+                    <p class="category-name">BUSINESS</p>
+
+                    <h3>Business Success</h3>
+
+                    <p class="author">
+                        by Robert King
+                    </p>
+
+                    <div class="book-bottom">
+
+                        <strong>₹449</strong>
+
+                        <button onclick="addToCart('Business Success',449)">
+                            Add +
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Book 5 -->
+            <div class="book-card"
+                 data-category="programming"
+                 data-title="Python Mastery"
+                 data-author="Alex Morgan">
+
+                <div class="book-cover python-cover">
+                    <span>PYTHON</span>
+                    <strong>MASTERY</strong>
+                </div>
+
+                <div class="book-info">
+
+                    <p class="category-name">PROGRAMMING</p>
+
+                    <h3>Python Mastery</h3>
+
+                    <p class="author">
+                        by Alex Morgan
+                    </p>
+
+                    <div class="book-bottom">
+
+                        <strong>₹549</strong>
+
+                        <button onclick="addToCart('Python Mastery',549)">
+                            Add +
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Book 6 -->
+            <div class="book-card"
+                 data-category="fiction"
+                 data-title="Beyond The Stars"
+                 data-author="Sarah Wilson">
+
+                <div class="book-cover stars-cover">
+                    <span>BEYOND</span>
+                    <strong>THE STARS</strong>
+                </div>
+
+                <div class="book-info">
+
+                    <p class="category-name">FICTION</p>
+
+                    <h3>Beyond The Stars</h3>
+
+                    <p class="author">
+                        by Sarah Wilson
+                    </p>
+
+                    <div class="book-bottom">
+
+                        <strong>₹399</strong>
+
+                        <button onclick="addToCart('Beyond The Stars',399)">
+                            Add +
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- About Section -->
+    <section class="about" id="about">
+
+        <div>
+
+            <p class="small-title">ABOUT BOOKNEST</p>
+
+            <h2>
+                Books that inspire,
+                stories that stay.
+            </h2>
+
+            <p>
+                BookNest is an online bookstore created
+                to make discovering and purchasing books
+                simple, enjoyable and accessible.
+            </p>
+
+        </div>
+
+        <div class="about-stats">
+
+            <div>
+                <strong>1000+</strong>
+                <span>Books</span>
+            </div>
+
+            <div>
+                <strong>500+</strong>
+                <span>Authors</span>
+            </div>
+
+            <div>
+                <strong>10K+</strong>
+                <span>Readers</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+
+        <div class="cart-box">
+
+            <button class="close-btn" onclick="closeCart()">
+                ✕
+            </button>
+
+            <h2>🛒 Your Cart</h2>
+
+            <div id="cartItems">
+                <p class="empty-cart">
+                    Your cart is empty.
+                </p>
+            </div>
+
+            <div class="cart-total">
+                Total:
+                <strong>₹<span id="cartTotal">0</span></strong>
+            </div>
+
+            <button class="checkout-btn" onclick="checkout()">
+                Proceed to Checkout
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <div class="footer-logo">
+            📚 BookNest
+        </div>
+
+        <p>
+            Your favourite destination for books.
+        </p>
+
+        <p>
+            © 2026 BookNest. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
