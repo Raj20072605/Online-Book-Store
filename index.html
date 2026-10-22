@@ -7,6 +7,11 @@
     <title>BookNest - Online Book Store</title>
 
     <link rel="stylesheet" href="style.css">
+    <script>
+    if (sessionStorage.getItem("booknestLoggedIn") !== "true") {
+        window.location.replace("login.html");
+    }
+</script>
 </head>
 
 <body>
