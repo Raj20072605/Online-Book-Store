@@ -9,7 +9,7 @@ const logoutButton = document.getElementById("logout-button");
 
 // Demo login credentials
 const adminUsername = "admin";
-const adminPassword = "BookNest123";
+const adminPassword = "Raj123";
 
 // Admin Login
 loginForm.addEventListener("submit", function(event) {
