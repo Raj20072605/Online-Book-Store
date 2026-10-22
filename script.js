@@ -169,44 +169,52 @@ function filterCategory(category) {
 function checkout() {
 
     if (cart.length === 0) {
-
         alert("Your cart is empty!");
-
         return;
     }
 
     let total = 0;
+    let totalBooks = 0;
 
     cart.forEach(book => {
-
         total += book.price * book.quantity;
-
+        totalBooks += book.quantity;
     });
 
+    // Get previous orders
+    let orders = JSON.parse(
+        localStorage.getItem("booknestOrders") || "[]"
+    );
+
+    // Save completed order
+    const order = {
+        orderId: Date.now(),
+        date: new Date().toLocaleString(),
+        books: cart.map(book => ({
+            name: book.name,
+            price: book.price,
+            quantity: book.quantity
+        })),
+        totalBooks: totalBooks,
+        totalAmount: total
+    };
+
+    orders.push(order);
+
+    localStorage.setItem(
+        "booknestOrders",
+        JSON.stringify(orders)
+    );
+
     alert(
-        "🎉 Order placed successfully!\n\n" +
-        "Total Amount: ₹" + total +
+        "Order placed successfully!\n\n" +
+        "Total Books: " + totalBooks +
+        "\nTotal Amount: ₹" + total +
         "\n\nThank you for shopping with BookNest!"
     );
 
     cart = [];
 
     updateCart();
-
     closeCart();
 }
-
-
-// CLOSE CART WHEN CLICKING OUTSIDE
-window.onclick = function(event) {
-
-    const modal =
-        document.getElementById("cartModal");
-
-    if (event.target === modal) {
-
-        closeCart();
-
-    }
-
-};
