@@ -7,23 +7,42 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     const password = document.getElementById("password").value;
     const message = document.getElementById("message");
 
-    // Demo login credentials
-    const correctUsername = "booknest";
-    const correctPassword = "12345";
+    // Get the registered demo account
+    const savedAccount = localStorage.getItem("booknestDemoAccount");
 
-    if (username === correctUsername && password === correctPassword) {
-        message.style.color = "green";
-        message.textContent = "Login successful! Opening BookNest...";
+    if (savedAccount) {
+        const account = JSON.parse(savedAccount);
 
-        // Remember the demo login in this browser
-        sessionStorage.setItem("booknestLoggedIn", "true");
+        if (username === account.username && password === account.password) {
+            message.style.color = "green";
+            message.textContent = "Login successful! Welcome to BookNest!";
 
-        setTimeout(function() {
-            window.location.href = "index.html";
-        }, 1000);
+            sessionStorage.setItem("booknestLoggedIn", "true");
+
+            setTimeout(function() {
+                window.location.href = "index.html";
+            }, 1000);
+
+        } else {
+            message.style.color = "red";
+            message.textContent = "Incorrect username or password!";
+        }
 
     } else {
-        message.style.color = "red";
-        message.textContent = "Incorrect username or password!";
+        // Demo login when no account has been registered
+        if (username === "booknest" && password === "12345") {
+            message.style.color = "green";
+            message.textContent = "Login successful!";
+
+            sessionStorage.setItem("booknestLoggedIn", "true");
+
+            setTimeout(function() {
+                window.location.href = "index.html";
+            }, 1000);
+
+        } else {
+            message.style.color = "red";
+            message.textContent = "Please register first or check your credentials!";
+        }
     }
 });
