@@ -1,148 +1,55 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    color: #333;
+    background-color: #f2f4f8;
+    margin: 0;
+    padding: 20px;
 }
 
-.admin-header {
-    background: #243b55;
-    color: white;
-    padding: 20px 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-}
-
-.admin-header h1 {
-    font-size: 25px;
-}
-
-button {
-    background: #e67e22;
-    color: white;
-    border: none;
-    padding: 11px 18px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-button:hover {
-    background: #ca6b16;
-}
-
-.container {
-    max-width: 1100px;
+.admin-container {
+    max-width: 600px;
     margin: 30px auto;
-    padding: 0 20px;
-}
-
-.dashboard,
-.book-form,
-.book-list {
     background: white;
     padding: 25px;
-    margin-bottom: 25px;
-    border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+h1 {
+    text-align: center;
+    color: #17365d;
 }
 
 h2 {
-    color: #243b55;
-    margin-bottom: 20px;
-}
-
-.dashboard p {
-    font-size: 20px;
-}
-
-#totalBooks {
-    color: #e67e22;
-    font-weight: bold;
-}
-
-label {
-    display: block;
-    margin: 15px 0 7px;
-    font-weight: bold;
+    color: #2563eb;
 }
 
 input {
-    width: 100%;
+    display: block;
+    width: 95%;
     padding: 12px;
+    margin: 10px 0;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 15px;
+    border-radius: 6px;
 }
 
-input:focus {
-    outline: 2px solid #243b55;
-}
-
-#bookForm button {
-    margin-top: 18px;
-    background: #243b55;
-}
-
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 500px;
-}
-
-th,
-td {
-    padding: 13px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-th {
-    background: #243b55;
+button {
+    background-color: #2563eb;
     color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-tr:nth-child(even) {
-    background: #f2f5f8;
+button:hover {
+    background-color: #17365d;
 }
 
-.delete-btn {
-    background: #dc3545;
+#book-list li {
+    padding: 10px;
+    margin: 5px 0;
+    background: #eef2ff;
+    border-radius: 5px;
 }
 
-.delete-btn:hover {
-    background: #b02a37;
-}
 
-.edit-btn {
-    background: #198754;
-    margin-right: 5px;
-}
 
-@media (max-width: 600px) {
-    .admin-header h1 {
-        font-size: 19px;
-    }
-
-    .container {
-        padding: 0 12px;
-    }
-
-    .dashboard,
-    .book-form,
-    .book-list {
-        padding: 16px;
-    }
-}
