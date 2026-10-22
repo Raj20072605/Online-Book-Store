@@ -1,136 +1,108 @@
-// BookNest Admin Panel
+const loginForm = document.getElementById("admin-login-form");
+const loginSection = document.getElementById("login-section");
+const dashboard = document.getElementById("dashboard");
+const loginMessage = document.getElementById("login-message");
 
-let books = JSON.parse(localStorage.getItem("booknestBooks")) || [];
+const addBookForm = document.getElementById("add-book-form");
+const bookList = document.getElementById("book-list");
+const logoutButton = document.getElementById("logout-button");
 
-const bookForm = document.getElementById("bookForm");
-const bookTable = document.getElementById("bookTable");
-const totalBooks = document.getElementById("totalBooks");
+// Demo login credentials
+const adminUsername = "admin";
+const adminPassword = "BookNest123";
 
-let editIndex = -1;
+// Admin Login
+loginForm.addEventListener("submit", function(event) {
+    event.preventDefault();
 
-// Display all books
-function displayBooks() {
-    bookTable.innerHTML = "";
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (
+        username === adminUsername &&
+        password === adminPassword
+    ) {
+        loginSection.hidden = true;
+        dashboard.hidden = false;
+        loginMessage.textContent = "";
+        showBooks();
+    } else {
+        loginMessage.textContent = "Invalid username or password!";
+    }
+});
+
+// Get saved books
+function getBooks() {
+    return JSON.parse(localStorage.getItem("booknestBooks") || "[]");
+}
+
+// Display Books
+function showBooks() {
+    bookList.innerHTML = "";
+
+    const books = getBooks();
 
     books.forEach(function(book, index) {
-        const row = document.createElement("tr");
+        const li = document.createElement("li");
 
-        const titleCell = document.createElement("td");
-        titleCell.textContent = book.title;
-
-        const authorCell = document.createElement("td");
-        authorCell.textContent = book.author;
-
-        const priceCell = document.createElement("td");
-        priceCell.textContent = "₹" + Number(book.price).toFixed(2);
-
-        const actionCell = document.createElement("td");
-
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.className = "edit-btn";
-        editButton.addEventListener("click", function() {
-            editBook(index);
-        });
+        li.textContent =
+            book.title + " - " +
+            book.author + " - ₹" +
+            book.price + " ";
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
-        deleteButton.className = "delete-btn";
+
         deleteButton.addEventListener("click", function() {
             deleteBook(index);
         });
 
-        actionCell.appendChild(editButton);
-        actionCell.appendChild(deleteButton);
-
-        row.appendChild(titleCell);
-        row.appendChild(authorCell);
-        row.appendChild(priceCell);
-        row.appendChild(actionCell);
-
-        bookTable.appendChild(row);
+        li.appendChild(deleteButton);
+        bookList.appendChild(li);
     });
-
-    totalBooks.textContent = books.length;
 }
 
-// Save books in browser storage
-function saveBooks() {
-    localStorage.setItem("booknestBooks", JSON.stringify(books));
-}
-
-// Add or update a book
-bookForm.addEventListener("submit", function(event) {
+// Add Book
+addBookForm.addEventListener("submit", function(event) {
     event.preventDefault();
 
-    const title = document.getElementById("bookTitle").value.trim();
-    const author = document.getElementById("bookAuthor").value.trim();
-    const price = Number(document.getElementById("bookPrice").value);
+    const title = document.getElementById("book-title").value;
+    const author = document.getElementById("book-author").value;
+    const price = Number(document.getElementById("book-price").value);
 
-    if (!title || !author || !Number.isFinite(price) || price <= 0) {
-        alert("Please enter valid book details and a price greater than zero.");
-        return;
-    }
+    const books = getBooks();
 
-    const book = {
+    books.push({
         title: title,
         author: author,
         price: price
-    };
+    });
 
-    if (editIndex === -1) {
-        books.push(book);
-        alert("Book added successfully!");
-    } else {
-        books[editIndex] = book;
-        editIndex = -1;
-        bookForm.querySelector('button[type="submit"]').textContent = "Add Book";
-        alert("Book updated successfully!");
-    }
+    localStorage.setItem("booknestBooks", JSON.stringify(books));
 
-    saveBooks();
-    displayBooks();
-    bookForm.reset();
+    addBookForm.reset();
+    showBooks();
+
+    alert("Book added successfully!");
 });
 
-// Edit book
-function editBook(index) {
-    document.getElementById("bookTitle").value = books[index].title;
-    document.getElementById("bookAuthor").value = books[index].author;
-    document.getElementById("bookPrice").value = books[index].price;
-
-    editIndex = index;
-    bookForm.querySelector('button[type="submit"]').textContent = "Update Book";
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-}
-
-// Delete book
+// Delete Book
 function deleteBook(index) {
-    if (confirm("Are you sure you want to delete this book?")) {
-        books.splice(index, 1);
+    const books = getBooks();
 
-        if (editIndex === index) {
-            editIndex = -1;
-            bookForm.reset();
-            bookForm.querySelector('button[type="submit"]').textContent = "Add Book";
-        } else if (editIndex > index) {
-            editIndex--;
-        }
+    books.splice(index, 1);
 
-        saveBooks();
-        displayBooks();
-        alert("Book deleted successfully!");
-    }
+    localStorage.setItem("booknestBooks", JSON.stringify(books));
+
+    showBooks();
 }
 
-// Demo logout
-function logout() {
-    window.location.href = "admin-login.html";
-}
+// Logout
+logoutButton.addEventListener("click", function() {
+    dashboard.hidden = true;
+    loginSection.hidden = false;
+    loginForm.reset();
+});
 
-// Show books when the page opens
-displayBooks();
+      
+ 
