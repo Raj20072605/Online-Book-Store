@@ -1,55 +1,31 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f2f4f8;
-    margin: 0;
+    font-family: Arial;
+    background: #f2f4f8;
+    color: #243b64;
     padding: 20px;
-}
-
-.admin-container {
-    max-width: 600px;
-    margin: 30px auto;
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
 }
 
 h1 {
     text-align: center;
-    color: #17365d;
 }
 
-h2 {
-    color: #2563eb;
+form {
+    background: white;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 450px;
 }
 
 input {
     display: block;
-    width: 95%;
-    padding: 12px;
+    padding: 10px;
     margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    width: 90%;
 }
 
 button {
-    background-color: #2563eb;
+    background: #243b64;
     color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #17365d;
-}
-
-#book-list li {
     padding: 10px;
-    margin: 5px 0;
-    background: #eef2ff;
-    border-radius: 5px;
+    border: none;
 }
-
-
-
