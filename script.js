@@ -1,9 +1,11 @@
-let cart = [];
+// ===============================
+// BOOKNEST SHOPPING CART
+// ===============================
 
+let cart = JSON.parse(localStorage.getItem("booknestCart") || "[]");
 
-// ADD TO CART
+// ADD BOOK TO CART
 function addToCart(name, price) {
-
     const existingBook = cart.find(book => book.name === name);
 
     if (existingBook) {
@@ -11,20 +13,24 @@ function addToCart(name, price) {
     } else {
         cart.push({
             name: name,
-            price: price,
+            price: Number(price),
             quantity: 1
         });
     }
 
+    saveCart();
     updateCart();
 
     alert(name + " added to your cart!");
 }
 
+// SAVE CART
+function saveCart() {
+    localStorage.setItem("booknestCart", JSON.stringify(cart));
+}
 
-// UPDATE CART
+// UPDATE CART DISPLAY
 function updateCart() {
-
     const cartItems = document.getElementById("cartItems");
     const cartCount = document.getElementById("cartCount");
     const cartTotal = document.getElementById("cartTotal");
@@ -32,161 +38,148 @@ function updateCart() {
     let totalItems = 0;
     let totalPrice = 0;
 
+    cart.forEach(book => {
+        totalItems += book.quantity;
+        totalPrice += book.price * book.quantity;
+    });
+
+    if (cartCount) {
+        cartCount.textContent = totalItems;
+    }
+
+    if (cartTotal) {
+        cartTotal.textContent = totalPrice.toLocaleString("en-IN");
+    }
+
+    if (!cartItems) return;
+
     cartItems.innerHTML = "";
 
     if (cart.length === 0) {
-
         cartItems.innerHTML =
             '<p class="empty-cart">Your cart is empty.</p>';
-
-    } else {
-
-        cart.forEach((book, index) => {
-
-            totalItems += book.quantity;
-            totalPrice += book.price * book.quantity;
-
-            const item = document.createElement("div");
-
-            item.className = "cart-item";
-
-            item.innerHTML = `
-                <div>
-                    <strong>${book.name}</strong>
-                    <br>
-                    <small>
-                        ₹${book.price} × ${book.quantity}
-                    </small>
-                </div>
-
-                <button
-                    class="remove-btn"
-                    onclick="removeFromCart(${index})">
-                    Remove
-                </button>
-            `;
-
-            cartItems.appendChild(item);
-        });
+        return;
     }
 
-    cartCount.textContent = totalItems;
-    cartTotal.textContent = totalPrice;
+    cart.forEach((book, index) => {
+        const item = document.createElement("div");
+        item.className = "cart-item";
+
+        const details = document.createElement("div");
+
+        const title = document.createElement("strong");
+        title.textContent = book.name;
+
+        const price = document.createElement("p");
+        price.textContent =
+            "₹" + book.price.toLocaleString("en-IN") +
+            " × " + book.quantity;
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "remove-btn";
+        removeButton.textContent = "Remove";
+        removeButton.onclick = function () {
+            removeFromCart(index);
+        };
+
+        details.appendChild(title);
+        details.appendChild(price);
+
+        item.appendChild(details);
+        item.appendChild(removeButton);
+
+        cartItems.appendChild(item);
+    });
 }
 
-
-// REMOVE FROM CART
+// REMOVE BOOK FROM CART
 function removeFromCart(index) {
-
     cart.splice(index, 1);
 
+    saveCart();
     updateCart();
 }
-
 
 // OPEN CART
 function openCart() {
+    const modal = document.getElementById("cartModal");
 
-    document.getElementById("cartModal").style.display = "flex";
+    if (modal) {
+        modal.hidden = false;
+        modal.style.display = "flex";
+    }
 
     updateCart();
 }
 
-
 // CLOSE CART
 function closeCart() {
+    const modal = document.getElementById("cartModal");
 
-    document.getElementById("cartModal").style.display = "none";
+    if (modal) {
+        modal.hidden = true;
+        modal.style.display = "none";
+    }
 }
-
 
 // SEARCH BOOKS
 function searchBooks() {
+    const searchInput = document.getElementById("searchInput");
 
-    const searchText =
-        document
-        .getElementById("searchInput")
-        .value
-        .toLowerCase();
+    if (!searchInput) return;
 
-    const books =
-        document.querySelectorAll(".book-card");
+    const searchText = searchInput.value.toLowerCase().trim();
+    const books = document.querySelectorAll(".book-card");
 
     books.forEach(book => {
+        const title = (book.dataset.title || book.innerText).toLowerCase();
+        const author = (book.dataset.author || "").toLowerCase();
 
-        const title =
-            book.dataset.title.toLowerCase();
-
-        const author =
-            book.dataset.author.toLowerCase();
-
-        if (
-            title.includes(searchText) ||
-            author.includes(searchText)
-        ) {
-
-            book.style.display = "block";
-
-        } else {
-
-            book.style.display = "none";
-
-        }
-
+        book.style.display =
+            title.includes(searchText) || author.includes(searchText)
+                ? ""
+                : "none";
     });
 }
 
-
-// FILTER BY CATEGORY
+// FILTER BOOKS BY CATEGORY
 function filterCategory(category) {
+    const books = document.querySelectorAll(".book-card");
+    const searchInput = document.getElementById("searchInput");
 
-    const books =
-        document.querySelectorAll(".book-card");
+    if (searchInput) {
+        searchInput.value = "";
+    }
 
     books.forEach(book => {
+        const bookCategory = (book.dataset.category || "").toLowerCase();
 
-        if (
-            category === "all" ||
-            book.dataset.category === category
-        ) {
-
-            book.style.display = "block";
-
-        } else {
-
-            book.style.display = "none";
-
-        }
-
+        book.style.display =
+            category === "all" || bookCategory === category.toLowerCase()
+                ? ""
+                : "none";
     });
-
-    // Clear search box
-    document.getElementById("searchInput").value = "";
 }
-
 
 // CHECKOUT
 function checkout() {
-
     if (cart.length === 0) {
         alert("Your cart is empty!");
         return;
     }
 
-    let total = 0;
-    let totalBooks = 0;
+    const totalBooks = cart.reduce(
+        (sum, book) => sum + book.quantity, 0
+    );
 
-    cart.forEach(book => {
-        total += book.price * book.quantity;
-        totalBooks += book.quantity;
-    });
+    const totalAmount = cart.reduce(
+        (sum, book) => sum + book.price * book.quantity, 0
+    );
 
-    // Get previous orders
-    let orders = JSON.parse(
+    const orders = JSON.parse(
         localStorage.getItem("booknestOrders") || "[]"
     );
 
-    // Save completed order
     const order = {
         orderId: Date.now(),
         date: new Date().toLocaleString(),
@@ -196,25 +189,28 @@ function checkout() {
             quantity: book.quantity
         })),
         totalBooks: totalBooks,
-        totalAmount: total
+        totalAmount: totalAmount
     };
 
     orders.push(order);
 
-    localStorage.setItem(
-        "booknestOrders",
-        JSON.stringify(orders)
-    );
+    localStorage.setItem("booknestOrders", JSON.stringify(orders));
 
     alert(
         "Order placed successfully!\n\n" +
         "Total Books: " + totalBooks +
-        "\nTotal Amount: ₹" + total +
+        "\nTotal Amount: ₹" + totalAmount.toLocaleString("en-IN") +
         "\n\nThank you for shopping with BookNest!"
     );
 
     cart = [];
 
+    saveCart();
     updateCart();
     closeCart();
 }
+
+// INITIALIZE PAGE
+document.addEventListener("DOMContentLoaded", function () {
+    updateCart();
+});
