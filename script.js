@@ -1,8 +1,15 @@
-// ===============================
+// =====================================
 // BOOKNEST SHOPPING CART
-// ===============================
+// =====================================
 
 let cart = JSON.parse(localStorage.getItem("booknestCart") || "[]");
+
+
+// SAVE CART
+function saveCart() {
+    localStorage.setItem("booknestCart", JSON.stringify(cart));
+}
+
 
 // ADD BOOK TO CART
 function addToCart(name, price) {
@@ -24,12 +31,8 @@ function addToCart(name, price) {
     alert(name + " added to your cart!");
 }
 
-// SAVE CART
-function saveCart() {
-    localStorage.setItem("booknestCart", JSON.stringify(cart));
-}
 
-// UPDATE CART DISPLAY
+// UPDATE CART
 function updateCart() {
     const cartItems = document.getElementById("cartItems");
     const cartCount = document.getElementById("cartCount");
@@ -78,6 +81,7 @@ function updateCart() {
         const removeButton = document.createElement("button");
         removeButton.className = "remove-btn";
         removeButton.textContent = "Remove";
+
         removeButton.onclick = function () {
             removeFromCart(index);
         };
@@ -92,13 +96,15 @@ function updateCart() {
     });
 }
 
-// REMOVE BOOK FROM CART
+
+// REMOVE BOOK
 function removeFromCart(index) {
     cart.splice(index, 1);
 
     saveCart();
     updateCart();
 }
+
 
 // OPEN CART
 function openCart() {
@@ -112,6 +118,7 @@ function openCart() {
     updateCart();
 }
 
+
 // CLOSE CART
 function closeCart() {
     const modal = document.getElementById("cartModal");
@@ -122,6 +129,7 @@ function closeCart() {
     }
 }
 
+
 // SEARCH BOOKS
 function searchBooks() {
     const searchInput = document.getElementById("searchInput");
@@ -131,86 +139,188 @@ function searchBooks() {
     const searchText = searchInput.value.toLowerCase().trim();
     const books = document.querySelectorAll(".book-card");
 
-    books.forEach(book => {
-        const title = (book.dataset.title || book.innerText).toLowerCase();
-        const author = (book.dataset.author || "").toLowerCase();
+    let visibleBooks = 0;
 
-        book.style.display =
-            title.includes(searchText) || author.includes(searchText)
-                ? ""
-                : "none";
+    books.forEach(book => {
+        const title =
+            (book.dataset.title || book.innerText).toLowerCase();
+
+        const author =
+            (book.dataset.author || "").toLowerCase();
+
+        const matches =
+            title.includes(searchText) ||
+            author.includes(searchText);
+
+        book.style.display = matches ? "" : "none";
+
+        if (matches) visibleBooks++;
     });
+
+    const message = document.getElementById("searchMessage");
+
+    if (message) {
+        message.textContent = visibleBooks === 0
+            ? "No books found. Try another search."
+            : "";
+    }
 }
+
 
 // FILTER BOOKS BY CATEGORY
 function filterCategory(category) {
     const books = document.querySelectorAll(".book-card");
     const searchInput = document.getElementById("searchInput");
+    const message = document.getElementById("searchMessage");
 
-    if (searchInput) {
-        searchInput.value = "";
-    }
+    if (searchInput) searchInput.value = "";
+    if (message) message.textContent = "";
 
     books.forEach(book => {
-        const bookCategory = (book.dataset.category || "").toLowerCase();
+        const bookCategory =
+            (book.dataset.category || "").toLowerCase();
 
         book.style.display =
-            category === "all" || bookCategory === category.toLowerCase()
+            category === "all" ||
+            bookCategory === category.toLowerCase()
                 ? ""
                 : "none";
     });
 }
 
-// CHECKOUT
-function checkout() {
-    if (cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-    }
 
-    const totalBooks = cart.reduce(
-        (sum, book) => sum + book.quantity, 0
-    );
+// CHECKOUT FORM
+function setupCheckout() {
+    const form = document.getElementById("checkoutForm");
 
-    const totalAmount = cart.reduce(
-        (sum, book) => sum + book.price * book.quantity, 0
-    );
+    if (!form) return;
 
-    const orders = JSON.parse(
-        localStorage.getItem("booknestOrders") || "[]"
-    );
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
 
-    const order = {
-        orderId: Date.now(),
-        date: new Date().toLocaleString(),
-        books: cart.map(book => ({
-            name: book.name,
-            price: book.price,
-            quantity: book.quantity
-        })),
-        totalBooks: totalBooks,
-        totalAmount: totalAmount
-    };
+        if (cart.length === 0) {
+            alert("Your cart is empty! Add books before placing an order.");
+            return;
+        }
 
-    orders.push(order);
+        if (!form.reportValidity()) {
+            return;
+        }
 
-    localStorage.setItem("booknestOrders", JSON.stringify(orders));
+        // CUSTOMER DETAILS
+        const customer = {
+            name: document.getElementById("customerName").value.trim(),
+            phone: document.getElementById("customerPhone").value.trim(),
+            house: document.getElementById("houseAddress").value.trim(),
+            street: document.getElementById("streetAddress").value.trim(),
+            city: document.getElementById("city").value.trim(),
+            state: document.getElementById("state").value.trim(),
+            pincode: document.getElementById("pincode").value.trim()
+        };
 
-    alert(
-        "Order placed successfully!\n\n" +
-        "Total Books: " + totalBooks +
-        "\nTotal Amount: ₹" + totalAmount.toLocaleString("en-IN") +
-        "\n\nThank you for shopping with BookNest!"
-    );
+        // PAYMENT METHOD
+        const selectedPayment =
+            document.querySelector('input[name="paymentMethod"]:checked');
 
-    cart = [];
+        if (!selectedPayment) {
+            alert("Please select a payment method.");
+            return;
+        }
 
-    saveCart();
-    updateCart();
-    closeCart();
+        const paymentMethod = selectedPayment.value;
+
+        // ORDER TOTAL
+        const totalBooks = cart.reduce(
+            (sum, book) => sum + book.quantity, 0
+        );
+
+        const totalAmount = cart.reduce(
+            (sum, book) => sum + book.price * book.quantity, 0
+        );
+
+        // DELIVERY ESTIMATE
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 7);
+
+        // CREATE ORDER
+        const order = {
+            orderId: "BN" + Date.now(),
+            date: new Date().toLocaleString("en-IN"),
+            customer: customer,
+
+            address:
+                customer.house + ", " +
+                customer.street + ", " +
+                customer.city + ", " +
+                customer.state + " - " +
+                customer.pincode,
+
+            books: cart.map(book => ({
+                name: book.name,
+                price: book.price,
+                quantity: book.quantity
+            })),
+
+            totalBooks: totalBooks,
+            totalAmount: totalAmount,
+            paymentMethod: paymentMethod,
+
+            paymentStatus:
+                paymentMethod === "Cash on Delivery"
+                    ? "Pay on delivery"
+                    : "Demo - payment not processed",
+
+            deliveryMethod: "Standard Delivery",
+            deliveryCharge: 0,
+            estimatedDelivery: deliveryDate.toLocaleDateString("en-IN"),
+            orderStatus: "Order Placed"
+        };
+
+        // SAVE ORDER
+        try {
+            const orders = JSON.parse(
+                localStorage.getItem("booknestOrders") || "[]"
+            );
+
+            orders.push(order);
+
+            localStorage.setItem(
+                "booknestOrders",
+                JSON.stringify(orders)
+            );
+
+        } catch (error) {
+            alert("Unable to save the order. Please try again.");
+            return;
+        }
+
+        // CONFIRMATION
+        alert(
+            "🎉 ORDER PLACED SUCCESSFULLY!\n\n" +
+            "Order ID: " + order.orderId +
+            "\nCustomer: " + customer.name +
+            "\nBooks: " + totalBooks +
+            "\nTotal: ₹" + totalAmount.toLocaleString("en-IN") +
+            "\nPayment: " + paymentMethod +
+            "\nDelivery: " + order.estimatedDelivery +
+            "\nStatus: " + order.orderStatus +
+            "\n\nDelivery Address:\n" + order.address +
+            "\n\nThank you for shopping with BookNest!"
+        );
+
+        // CLEAR CART
+        cart = [];
+
+        saveCart();
+        updateCart();
+        form.reset();
+        closeCart();
+    });
 }
+
 
 // INITIALIZE PAGE
 document.addEventListener("DOMContentLoaded", function () {
     updateCart();
+    setupCheckout();
 });
