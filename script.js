@@ -1,105 +1,110 @@
-// =====================================
-// BOOKNEST SHOPPING CART
-// =====================================
+// ======================================
+// BOOKNEST - COMPLETE SHOPPING SYSTEM
+// ======================================
 
-let cart = JSON.parse(
-    localStorage.getItem("booknestCart") || "[]"
-);
+let cart = JSON.parse(localStorage.getItem("booknestCart") || "[]");
 
+// ======================================
+// LOAD BOOKS
+// ======================================
+
+function getAllBooks() {
+    const defaultBooks = window.defaultBooks || [];
+
+    const extraBooks = JSON.parse(
+        localStorage.getItem("booknestExtraBooks") || "[]"
+    );
+
+    return [...defaultBooks, ...extraBooks];
+}
+
+// ======================================
+// DISPLAY BOOKS
+// ======================================
+
+function displayBooks(bookList) {
+    const container = document.getElementById("booksContainer");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (bookList.length === 0) {
+        container.innerHTML = "<p>No books found.</p>";
+        return;
+    }
+
+    bookList.forEach(book => {
+        const card = document.createElement("article");
+        card.className = "book-card";
+        card.dataset.title = book.title;
+        card.dataset.author = book.author;
+        card.dataset.category = book.category.toLowerCase();
+
+        const cover = document.createElement("div");
+        cover.className = "book-cover programming-cover";
+        cover.textContent = "📚 " + book.title;
+
+        const info = document.createElement("div");
+        info.className = "book-info";
+
+        const category = document.createElement("p");
+        category.className = "category-name";
+        category.textContent = book.category.toUpperCase();
+
+        const title = document.createElement("h3");
+        title.textContent = book.title;
+
+        const author = document.createElement("p");
+        author.className = "author";
+        author.textContent = "By " + book.author;
+
+        const rating = document.createElement("p");
+        rating.className = "rating";
+        rating.textContent = "★★★★☆";
+
+        const bottom = document.createElement("div");
+        bottom.className = "book-bottom";
+
+        const price = document.createElement("strong");
+        price.textContent = "₹" + Number(book.price).toLocaleString("en-IN");
+
+        const button = document.createElement("button");
+        button.textContent = "Add to Cart";
+        button.addEventListener("click", function () {
+            addToCart(book.title, Number(book.price));
+        });
+
+        bottom.appendChild(price);
+        bottom.appendChild(button);
+
+        info.appendChild(category);
+        info.appendChild(title);
+        info.appendChild(author);
+        info.appendChild(rating);
+        info.appendChild(bottom);
+
+        card.appendChild(cover);
+        card.appendChild(info);
+
+        container.appendChild(card);
+    });
+}
+
+// ======================================
 // SAVE CART
+// ======================================
+
 function saveCart() {
-    localStorage.setItem(
-        "booknestCart",
-        JSON.stringify(cart)
-    );
+    localStorage.setItem("booknestCart", JSON.stringify(cart));
 }
 
-// GET LOGGED-IN CUSTOMER NAME
-function getCustomerName() {
-    const keys = [
-        "booknestUsername",
-        "booknestUser",
-        "loggedInUser",
-        "username"
-    ];
-
-    for (const key of keys) {
-        const name =
-            sessionStorage.getItem(key) ||
-            localStorage.getItem(key);
-
-        if (name && name !== "true") {
-            try {
-                const parsed = JSON.parse(name);
-
-                if (typeof parsed === "string") {
-                    return parsed;
-                }
-
-                if (parsed && parsed.username) {
-                    return parsed.username;
-                }
-
-                if (parsed && parsed.name) {
-                    return parsed.name;
-                }
-            } catch (error) {
-                return name;
-            }
-        }
-    }
-
-    return "";
-}
-
-// SHOW CUSTOMER NAME
-function displayCustomerName() {
-    const name = getCustomerName();
-
-    if (!name) return;
-
-    let nameElement = document.getElementById(
-        "booknest-customer-name"
-    );
-
-    if (!nameElement) {
-        nameElement = document.createElement("span");
-        nameElement.id = "booknest-customer-name";
-
-        nameElement.style.color = "#ffffff";
-        nameElement.style.fontWeight = "bold";
-        nameElement.style.margin = "0 10px";
-
-        const signOut = Array.from(
-            document.querySelectorAll("a, button")
-        ).find(element =>
-            /sign out|logout|log out/i.test(
-                element.textContent.trim()
-            )
-        );
-
-        if (signOut && signOut.parentElement) {
-            signOut.parentElement.insertBefore(
-                nameElement,
-                signOut
-            );
-        } else {
-            const header = document.querySelector("header");
-
-            if (header) {
-                header.appendChild(nameElement);
-            }
-        }
-    }
-
-    nameElement.textContent = "Welcome, " + name + "! ";
-}
-
+// ======================================
 // ADD BOOK TO CART
+// ======================================
+
 function addToCart(name, price) {
-    const existingBook = cart.find(
-        book => book.name === name
-    );
+    const existingBook = cart.find(book => book.name === name);
 
     if (existingBook) {
         existingBook.quantity++;
@@ -117,7 +122,10 @@ function addToCart(name, price) {
     alert(name + " added to your cart!");
 }
 
+// ======================================
 // UPDATE CART
+// ======================================
+
 function updateCart() {
     const cartItems = document.getElementById("cartItems");
     const cartCount = document.getElementById("cartCount");
@@ -128,9 +136,7 @@ function updateCart() {
 
     cart.forEach(book => {
         totalItems += Number(book.quantity || 1);
-        totalPrice +=
-            Number(book.price || 0) *
-            Number(book.quantity || 1);
+        totalPrice += Number(book.price || 0) * Number(book.quantity || 1);
     });
 
     if (cartCount) {
@@ -138,8 +144,7 @@ function updateCart() {
     }
 
     if (cartTotal) {
-        cartTotal.textContent =
-            totalPrice.toLocaleString("en-IN");
+        cartTotal.textContent = totalPrice.toLocaleString("en-IN");
     }
 
     if (!cartItems) return;
@@ -147,8 +152,7 @@ function updateCart() {
     cartItems.innerHTML = "";
 
     if (cart.length === 0) {
-        cartItems.innerHTML =
-            '<p class="empty-cart">Your cart is empty.</p>';
+        cartItems.innerHTML = "<p>Your cart is empty.</p>";
         return;
     }
 
@@ -163,20 +167,16 @@ function updateCart() {
 
         const price = document.createElement("p");
         price.textContent =
-            "₹" +
-            Number(book.price).toLocaleString("en-IN") +
-            " × " +
-            book.quantity;
+            "₹" + Number(book.price).toLocaleString("en-IN") +
+            " × " + book.quantity;
 
-        const removeButton =
-            document.createElement("button");
-
+        const removeButton = document.createElement("button");
         removeButton.className = "remove-btn";
         removeButton.textContent = "Remove";
 
-        removeButton.onclick = function () {
+        removeButton.addEventListener("click", function () {
             removeFromCart(index);
-        };
+        });
 
         details.appendChild(title);
         details.appendChild(price);
@@ -188,15 +188,20 @@ function updateCart() {
     });
 }
 
+// ======================================
 // REMOVE BOOK
+// ======================================
+
 function removeFromCart(index) {
     cart.splice(index, 1);
-
     saveCart();
     updateCart();
 }
 
-// OPEN CART
+// ======================================
+// OPEN AND CLOSE CART
+// ======================================
+
 function openCart() {
     const modal = document.getElementById("cartModal");
 
@@ -208,7 +213,6 @@ function openCart() {
     updateCart();
 }
 
-// CLOSE CART
 function closeCart() {
     const modal = document.getElementById("cartModal");
 
@@ -218,7 +222,10 @@ function closeCart() {
     }
 }
 
-// PROCEED TO SEPARATE DELIVERY PAGE
+// ======================================
+// PROCEED TO CHECKOUT
+// ======================================
+
 function proceedToCheckout() {
     if (cart.length === 0) {
         alert("Your cart is empty! Please add books first.");
@@ -226,121 +233,88 @@ function proceedToCheckout() {
     }
 
     saveCart();
-
     window.location.href = "delivery.html";
 }
 
+// ======================================
 // SEARCH BOOKS
+// ======================================
+
 function searchBooks() {
-    const searchInput =
-        document.getElementById("searchInput");
+    const searchInput = document.getElementById("searchInput");
+    const message = document.getElementById("searchMessage");
 
     if (!searchInput) return;
 
-    const searchText =
-        searchInput.value.toLowerCase().trim();
+    const searchText = searchInput.value.toLowerCase().trim();
 
-    const books =
-        document.querySelectorAll(".book-card");
+    const filteredBooks = getAllBooks().filter(book =>
+        book.title.toLowerCase().includes(searchText) ||
+        book.author.toLowerCase().includes(searchText) ||
+        book.category.toLowerCase().includes(searchText)
+    );
 
-    let visibleBooks = 0;
-
-    books.forEach(book => {
-        const title =
-            (book.dataset.title || book.innerText)
-                .toLowerCase();
-
-        const author =
-            (book.dataset.author || "").toLowerCase();
-
-        const matches =
-            title.includes(searchText) ||
-            author.includes(searchText);
-
-        book.style.display = matches ? "" : "none";
-
-        if (matches) visibleBooks++;
-    });
-
-    const message =
-        document.getElementById("searchMessage");
+    displayBooks(filteredBooks);
 
     if (message) {
-        message.textContent = visibleBooks === 0
+        message.textContent = filteredBooks.length === 0
             ? "No books found. Try another search."
-            : "";
+            : "Found " + filteredBooks.length + " book(s).";
     }
 }
 
-// FILTER BOOKS BY CATEGORY
+// ======================================
+// FILTER BY CATEGORY
+// ======================================
+
 function filterCategory(category) {
-    const books =
-        document.querySelectorAll(".book-card");
+    const searchInput = document.getElementById("searchInput");
+    const message = document.getElementById("searchMessage");
 
-    const searchInput =
-        document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.value = "";
+    }
 
-    const message =
-        document.getElementById("searchMessage");
+    const books = getAllBooks();
 
-    if (searchInput) searchInput.value = "";
-    if (message) message.textContent = "";
-
-    books.forEach(book => {
-        const bookCategory =
-            (book.dataset.category || "").toLowerCase();
-
-        book.style.display =
-            category === "all" ||
-            bookCategory === category.toLowerCase()
-                ? ""
-                : "none";
-    });
-}
-
-// INITIALIZE PAGE
-document.addEventListener("DOMContentLoaded", function () {
-    updateCart();
-    displayCustomerName();
-
-    // Connect the checkout form's submit button
-    // to the separate delivery page.
-    const checkoutForm =
-        document.getElementById("checkoutForm");
-
-    if (checkoutForm) {
-        checkoutForm.addEventListener(
-            "submit",
-            function (event) {
-                event.preventDefault();
-                proceedToCheckout();
-            }
+    const filteredBooks = category === "all"
+        ? books
+        : books.filter(book =>
+            book.category.toLowerCase() === category.toLowerCase()
         );
 
-        // Also handle checkout buttons if the form
-        // is using a button rather than form submission.
-        const submitButton =
-            checkoutForm.querySelector('[type="submit"]');
+    displayBooks(filteredBooks);
 
-        if (submitButton) {
-            submitButton.addEventListener(
-                "click",
-                function (event) {
-                    event.preventDefault();
-                    proceedToCheckout();
-                }
-            );
-        }
+    if (message) {
+        message.textContent = "Showing " + filteredBooks.length + " book(s).";
     }
+}
 
-    // Support a separately identified checkout button.
-    const checkoutButton =
-        document.getElementById("proceedToCheckout");
+// ======================================
+// CUSTOMER NAME
+// ======================================
 
-    if (checkoutButton && !checkoutForm?.contains(checkoutButton)) {
-        checkoutButton.addEventListener("click", function (event) {
-            event.preventDefault();
-            proceedToCheckout();
-        });
+function displayCustomerName() {
+    const nameElement = document.getElementById("booknest-customer-name");
+
+    if (!nameElement) return;
+
+    const name =
+        sessionStorage.getItem("booknestUsername") ||
+        localStorage.getItem("booknestUsername") ||
+        "";
+
+    if (name && name !== "true") {
+        nameElement.textContent = "Welcome, " + name + "!";
     }
+}
+
+// ======================================
+// INITIALIZE WEBSITE
+// ======================================
+
+document.addEventListener("DOMContentLoaded", function () {
+    displayBooks(getAllBooks());
+    updateCart();
+    displayCustomerName();
 });
