@@ -1,9 +1,7 @@
 // BOOKNEST SUPABASE LOGIN
 
 const SUPABASE_URL = "https://qcxhunpvbqcxlaiytric.supabase.co";
-
-const SUPABASE_KEY = "PASTE_THE_KEY_COPIED_FROM_SUPABASE_HERE";
-
+const SUPABASE_KEY = "PASTE_YOUR_LEGACY_ANON_KEY_HERE";
 const script = document.createElement("script");
 script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
