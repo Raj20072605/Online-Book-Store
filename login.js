@@ -1,48 +1,47 @@
-// BookNest Login System
+const SUPABASE_URL = "https://qcxhunpvbqcxlaiytric.supabase.co";
 
-document.getElementById("loginForm").addEventListener("submit", function(event) {
-    event.preventDefault();
+const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
+const script = document.createElement("script");
+script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+script.onload = function () {
+    const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+    const loginForm = document.getElementById("loginForm");
     const message = document.getElementById("message");
 
-    // Get the registered demo account
-    const savedAccount = localStorage.getItem("booknestDemoAccount");
+    loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-    if (savedAccount) {
-        const account = JSON.parse(savedAccount);
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-        if (username === account.username && password === account.password) {
-            message.style.color = "green";
-            message.textContent = "Login successful! Welcome to BookNest!";
+        message.textContent = "Logging in...";
 
-            sessionStorage.setItem("booknestLoggedIn", "true");
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
 
-            setTimeout(function() {
-                window.location.href = "index.html";
-            }, 1000);
-
-        } else {
-            message.style.color = "red";
-            message.textContent = "Incorrect username or password!";
+        if (error) {
+            message.textContent = "Login failed: " + error.message;
+            return;
         }
 
-    } else {
-        // Demo login when no account has been registered
-        if (username === "booknest" && password === "12345") {
-            message.style.color = "green";
-            message.textContent = "Login successful!";
+        message.textContent = "Login successful!";
 
-            sessionStorage.setItem("booknestLoggedIn", "true");
+        sessionStorage.setItem("booknestLoggedIn", "true");
+        sessionStorage.setItem("booknestUserEmail", data.user.email);
 
-            setTimeout(function() {
-                window.location.href = "index.html";
-            }, 1000);
+        setTimeout(function () {
+            window.location.href = "index.html";
+        }, 1000);
+    });
+};
 
-        } else {
-            message.style.color = "red";
-            message.textContent = "Please register first or check your credentials!";
-        }
-    }
-});
+document.head.appendChild(script);
