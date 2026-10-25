@@ -2,7 +2,7 @@
 
 const SUPABASE_URL = "https://qcxhunpvbqcxlaiytric.supabase.co";
 
-const SUPABASE_KEY = "sb_publishable_DLPi1F0kQxmin8wqMaIPjg_kP5cEwy-";
+const SUPABASE_KEY = "PASTE_THE_KEY_COPIED_FROM_SUPABASE_HERE";
 
 const script = document.createElement("script");
 script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
