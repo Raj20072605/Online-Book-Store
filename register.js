@@ -1,37 +1,65 @@
-// BookNest Login System
+// BookNest Registration System
 
-document.getElementById("loginForm").addEventListener("submit", function(event) {
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", function () {
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
-    const message = document.getElementById("message");
+    const registerForm = document.getElementById("registerForm");
 
-    // Get the registered account
-    const savedAccount = localStorage.getItem("booknestDemoAccount");
-
-    if (!savedAccount) {
-        message.style.color = "red";
-        message.textContent = "No account found. Please register first.";
+    if (!registerForm) {
         return;
     }
 
-    const account = JSON.parse(savedAccount);
+    registerForm.addEventListener("submit", function (event) {
+        event.preventDefault();
 
-    // Check username and password
-    if (account.username === username && account.password === password) {
-        sessionStorage.setItem("booknestLoggedIn", "true");
-        sessionStorage.setItem("booknestUsername", username);
+        const fullname = document.getElementById("fullname").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const message = document.getElementById("message");
 
-        message.style.color = "green";
-        message.textContent = "Login successful! Opening BookNest...";
+        if (password !== confirmPassword) {
+            message.style.color = "red";
+            message.textContent = "Passwords do not match!";
+            return;
+        }
 
-        setTimeout(function() {
-            window.location.href = "index.html";
-        }, 1000);
+        const account = {
+            fullname: fullname,
+            username: username,
+            email: email,
+            password: password
+        };
 
-    } else {
-        message.style.color = "red";
-        message.textContent = "Incorrect username or password.";
-    }
+        try {
+            localStorage.setItem(
+                "booknestDemoAccount",
+                JSON.stringify(account)
+            );
+
+            const savedAccount = JSON.parse(
+                localStorage.getItem("booknestDemoAccount")
+            );
+
+            if (!savedAccount || savedAccount.username !== username) {
+                throw new Error("Account could not be saved.");
+            }
+
+            message.style.color = "green";
+            message.textContent =
+                "Registration successful! Your account is saved.";
+
+            registerForm.reset();
+
+            setTimeout(function () {
+                window.location.href = "login.html";
+            }, 2000);
+
+        } catch (error) {
+            message.style.color = "red";
+            message.textContent =
+                "Could not save your account. Please enable browser storage.";
+        }
+    });
+
 });
