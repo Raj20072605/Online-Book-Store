@@ -1,4 +1,4 @@
-// BookNest Original Login System
+// BookNest Login System
 
 document.getElementById("loginForm").addEventListener("submit", function(event) {
     event.preventDefault();
@@ -7,23 +7,32 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     const password = document.getElementById("password").value;
     const message = document.getElementById("message");
 
-    const users = JSON.parse(localStorage.getItem("booknestUsers")) || [];
+    let account;
 
-    const user = users.find(function(u) {
-        return u.username === username && u.password === password;
-    });
+    try {
+        account = JSON.parse(localStorage.getItem("booknestDemoAccount"));
+    } catch (error) {
+        account = null;
+    }
 
-    if (user) {
+    if (!account) {
+        message.style.color = "red";
+        message.textContent = "Please register an account first.";
+        return;
+    }
+
+    if (account.username === username && account.password === password) {
         sessionStorage.setItem("booknestLoggedIn", "true");
         sessionStorage.setItem("booknestUsername", username);
 
+        message.style.color = "green";
         message.textContent = "Login successful!";
 
         setTimeout(function() {
             window.location.href = "index.html";
         }, 1000);
     } else {
-        message.textContent = "Invalid username or password. Please register first.";
+        message.style.color = "red";
+        message.textContent = "Incorrect username or password. Please register again.";
     }
 });
-       
