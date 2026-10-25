@@ -1,36 +1,37 @@
-// BookNest Registration System
+// BookNest Login System
 
-document.getElementById("registerForm").addEventListener("submit", function(event) {
+document.getElementById("loginForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
-    const fullname = document.getElementById("fullname").value.trim();
     const username = document.getElementById("username").value.trim();
-    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
     const message = document.getElementById("message");
 
-    if (password !== confirmPassword) {
+    // Get the registered account
+    const savedAccount = localStorage.getItem("booknestDemoAccount");
+
+    if (!savedAccount) {
         message.style.color = "red";
-        message.textContent = "Passwords do not match!";
+        message.textContent = "No account found. Please register first.";
         return;
     }
 
-    // Save demo account in this browser only.
-    // Do not use this method for real passwords.
-    const account = {
-        fullname: fullname,
-        username: username,
-        email: email,
-        password: password
-    };
+    const account = JSON.parse(savedAccount);
 
-    localStorage.setItem("booknestDemoAccount", JSON.stringify(account));
+    // Check username and password
+    if (account.username === username && account.password === password) {
+        sessionStorage.setItem("booknestLoggedIn", "true");
+        sessionStorage.setItem("booknestUsername", username);
 
-    message.style.color = "green";
-    message.textContent = "Registration successful! Redirecting to login...";
+        message.style.color = "green";
+        message.textContent = "Login successful! Opening BookNest...";
 
-    setTimeout(function() {
-        window.location.href = "login.html";
-    }, 1500);
+        setTimeout(function() {
+            window.location.href = "index.html";
+        }, 1000);
+
+    } else {
+        message.style.color = "red";
+        message.textContent = "Incorrect username or password.";
+    }
 });
