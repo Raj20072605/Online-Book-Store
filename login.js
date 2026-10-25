@@ -1,15 +1,13 @@
-// BOOKNEST - SUPABASE LOGIN
+// BOOKNEST SUPABASE LOGIN
 
 const SUPABASE_URL = "https://qcxhunpvbqcxlaiytric.supabase.co";
 
-// PASTE YOUR ACTUAL SUPABASE PUBLISHABLE KEY BELOW
-const SUPABASE_KEY = "PASTE_YOUR_ACTUAL_KEY_HERE";
+const SUPABASE_KEY = "sb_publishable_DLPi1F0kQxmin8wqMaIPjg_kP5cEwy-";
 
 const script = document.createElement("script");
 script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
 script.onload = function () {
-
     const supabaseClient = window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
@@ -17,11 +15,6 @@ script.onload = function () {
 
     const loginForm = document.getElementById("loginForm");
     const message = document.getElementById("message");
-
-    if (!loginForm || !message) {
-        console.error("Login form or message element not found.");
-        return;
-    }
 
     loginForm.addEventListener("submit", async function (event) {
         event.preventDefault();
@@ -31,41 +24,31 @@ script.onload = function () {
 
         message.textContent = "Logging in...";
 
-        try {
-            const { data, error } =
-                await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
 
-            if (error) {
-                message.textContent = "Login failed: " + error.message;
-                return;
-            }
-
-            sessionStorage.setItem("booknestLoggedIn", "true");
-            sessionStorage.setItem("booknestUserEmail", data.user.email);
-
-            message.textContent = "Login successful!";
-
-            setTimeout(function () {
-                window.location.href = "index.html";
-            }, 1000);
-
-        } catch (error) {
-            message.textContent = "Something went wrong. Please try again.";
-            console.error(error);
+        if (error) {
+            message.textContent = "Login failed: " + error.message;
+            return;
         }
+
+        sessionStorage.setItem("booknestLoggedIn", "true");
+        sessionStorage.setItem("booknestUserEmail", data.user.email);
+
+        message.textContent = "Login successful!";
+
+        setTimeout(function () {
+            window.location.href = "index.html";
+        }, 1000);
     });
 };
 
 script.onerror = function () {
-    const message = document.getElementById("message");
-
-    if (message) {
-        message.textContent =
-            "Unable to load the login library. Check your internet connection.";
-    }
+    document.getElementById("message").textContent =
+        "Unable to load Supabase. Check your internet connection.";
 };
 
 document.head.appendChild(script);
