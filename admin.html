@@ -10,51 +10,88 @@
 
     <h1>📚 BookNest Admin Panel</h1>
 
+    <!-- ADMIN LOGIN -->
     <div id="login-section">
         <h2>Admin Login</h2>
 
         <form id="admin-login-form">
-            <input
-                type="text"
-                id="admin-username"
-                placeholder="Enter username"
-                required
-            >
+            <input type="text" id="admin-username"
+                   placeholder="Enter username" required>
 
-            <input
-                type="password"
-                id="admin-password"
-                placeholder="Enter password"
-                required
-            >
+            <input type="password" id="admin-password"
+                   placeholder="Enter password" required>
 
             <button type="submit">Login</button>
         </form>
     </div>
 
+    <!-- ADMIN DASHBOARD -->
     <div id="admin-panel" style="display:none;">
 
-        <h2>Sales Dashboard</h2>
+        <h2>📊 Sales Dashboard</h2>
 
         <div id="sales-summary">
             <h3>Total Orders: <span id="total-orders">0</span></h3>
-
-            <h3>Total Books Sold:
-                <span id="total-books-sold">0</span>
-            </h3>
-
-            <h3>Total Sales Revenue:
-                <span id="total-revenue">₹0</span>
-            </h3>
+            <h3>Total Books Sold: <span id="total-books-sold">0</span></h3>
+            <h3>Total Sales Revenue: <span id="total-revenue">₹0</span></h3>
         </div>
 
-        <h2>Customer Orders</h2>
+        <hr>
+
+        <!-- ADD NEW BOOK -->
+        <h2>➕ Add a New Book</h2>
+
+        <form id="add-book-form">
+            <p>
+                <input type="text" id="new-book-title"
+                       placeholder="Book Title" required>
+            </p>
+
+            <p>
+                <input type="text" id="new-book-author"
+                       placeholder="Author Name" required>
+            </p>
+
+            <p>
+                <input type="number" id="new-book-price"
+                       placeholder="Price in ₹" min="1" required>
+            </p>
+
+            <p>
+                <select id="new-book-category" required>
+                    <option value="">Select Category</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="Science">Science</option>
+                    <option value="Business">Business</option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Mystery">Mystery</option>
+                    <option value="Biography">Biography</option>
+                    <option value="Finance">Finance</option>
+                </select>
+            </p>
+
+            <button type="submit">Add Book</button>
+        </form>
+
+        <p id="add-book-message"></p>
+
+        <h2>📚 Books Added by Admin</h2>
+        <div id="admin-book-list">
+            <p>No additional books added yet.</p>
+        </div>
+
+        <hr>
+
+        <!-- CUSTOMER ORDERS -->
+        <h2>🛒 Customer Orders</h2>
 
         <div id="order-list">
             <p>No orders yet.</p>
         </div>
 
-        <button onclick="logoutAdmin()">Logout</button>
+        <button type="button" onclick="logoutAdmin()">Logout</button>
 
     </div>
 
@@ -65,8 +102,9 @@
         }
     </script>
 
+    <script src="books.js"></script>
     <script src="admin.js"></script>
 
 </body>
 </html>
-
+       
