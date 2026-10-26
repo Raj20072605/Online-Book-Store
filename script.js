@@ -1,5 +1,6 @@
 // ======================================
 // BOOKNEST - COMPLETE SHOPPING SYSTEM
+// WITH BOOK COVER IMAGES
 // ======================================
 
 let cart = JSON.parse(localStorage.getItem("booknestCart") || "[]");
@@ -19,7 +20,22 @@ function getAllBooks() {
 }
 
 // ======================================
-// DISPLAY BOOKS
+// GET BOOK IMAGE
+// ======================================
+
+function getBookImage(book) {
+    // Use an image URL saved with the book, if available.
+    if (book.image) return book.image;
+    if (book.imageUrl) return book.imageUrl;
+    if (book.coverImage) return book.coverImage;
+
+    // Placeholder for books without an image URL.
+    return "https://placehold.co/300x420/f2e8d5/3d3028?text=" +
+        encodeURIComponent(book.title || "Book Cover");
+}
+
+// ======================================
+// DISPLAY BOOKS WITH IMAGES
 // ======================================
 
 function displayBooks(bookList) {
@@ -29,7 +45,7 @@ function displayBooks(bookList) {
 
     container.innerHTML = "";
 
-    if (bookList.length === 0) {
+    if (!bookList || bookList.length === 0) {
         container.innerHTML = "<p>No books found.</p>";
         return;
     }
@@ -37,27 +53,45 @@ function displayBooks(bookList) {
     bookList.forEach(book => {
         const card = document.createElement("article");
         card.className = "book-card";
-        card.dataset.title = book.title;
-        card.dataset.author = book.author;
-        card.dataset.category = book.category.toLowerCase();
 
+        card.dataset.title = book.title || "";
+        card.dataset.author = book.author || "";
+        card.dataset.category = (book.category || "").toLowerCase();
+
+        // BOOK COVER
         const cover = document.createElement("div");
-        cover.className = "book-cover programming-cover";
-        cover.textContent = "📚 " + book.title;
+        cover.className = "book-cover";
 
+        const image = document.createElement("img");
+
+        image.src = getBookImage(book);
+        image.alt = (book.title || "Book") + " cover";
+        image.loading = "lazy";
+
+        image.onerror = function () {
+            this.onerror = null;
+            this.src =
+                "https://placehold.co/300x420/f2e8d5/3d3028?text=Book+Cover";
+        };
+
+        cover.appendChild(image);
+
+        // BOOK INFORMATION
         const info = document.createElement("div");
         info.className = "book-info";
 
         const category = document.createElement("p");
         category.className = "category-name";
-        category.textContent = book.category.toUpperCase();
+        category.textContent =
+            (book.category || "General").toUpperCase();
 
         const title = document.createElement("h3");
-        title.textContent = book.title;
+        title.textContent = book.title || "Untitled Book";
 
         const author = document.createElement("p");
         author.className = "author";
-        author.textContent = "By " + book.author;
+        author.textContent =
+            "By " + (book.author || "Unknown Author");
 
         const rating = document.createElement("p");
         rating.className = "rating";
@@ -67,12 +101,17 @@ function displayBooks(bookList) {
         bottom.className = "book-bottom";
 
         const price = document.createElement("strong");
-        price.textContent = "₹" + Number(book.price).toLocaleString("en-IN");
+        price.textContent =
+            "₹" + Number(book.price || 0).toLocaleString("en-IN");
 
         const button = document.createElement("button");
         button.textContent = "Add to Cart";
+
         button.addEventListener("click", function () {
-            addToCart(book.title, Number(book.price));
+            addToCart(
+                book.title || "Untitled Book",
+                Number(book.price || 0)
+            );
         });
 
         bottom.appendChild(price);
@@ -107,7 +146,8 @@ function addToCart(name, price) {
     const existingBook = cart.find(book => book.name === name);
 
     if (existingBook) {
-        existingBook.quantity++;
+        existingBook.quantity =
+            Number(existingBook.quantity || 1) + 1;
     } else {
         cart.push({
             name: name,
@@ -135,8 +175,10 @@ function updateCart() {
     let totalPrice = 0;
 
     cart.forEach(book => {
-        totalItems += Number(book.quantity || 1);
-        totalPrice += Number(book.price || 0) * Number(book.quantity || 1);
+        const quantity = Number(book.quantity || 1);
+
+        totalItems += quantity;
+        totalPrice += Number(book.price || 0) * quantity;
     });
 
     if (cartCount) {
@@ -144,7 +186,8 @@ function updateCart() {
     }
 
     if (cartTotal) {
-        cartTotal.textContent = totalPrice.toLocaleString("en-IN");
+        cartTotal.textContent =
+            totalPrice.toLocaleString("en-IN");
     }
 
     if (!cartItems) return;
@@ -163,12 +206,12 @@ function updateCart() {
         const details = document.createElement("div");
 
         const title = document.createElement("strong");
-        title.textContent = book.name;
+        title.textContent = book.name || book.title || "Book";
 
         const price = document.createElement("p");
         price.textContent =
-            "₹" + Number(book.price).toLocaleString("en-IN") +
-            " × " + book.quantity;
+            "₹" + Number(book.price || 0).toLocaleString("en-IN") +
+            " × " + Number(book.quantity || 1);
 
         const removeButton = document.createElement("button");
         removeButton.className = "remove-btn";
@@ -189,17 +232,18 @@ function updateCart() {
 }
 
 // ======================================
-// REMOVE BOOK
+// REMOVE BOOK FROM CART
 // ======================================
 
 function removeFromCart(index) {
     cart.splice(index, 1);
+
     saveCart();
     updateCart();
 }
 
 // ======================================
-// OPEN AND CLOSE CART
+// OPEN CART
 // ======================================
 
 function openCart() {
@@ -212,6 +256,10 @@ function openCart() {
 
     updateCart();
 }
+
+// ======================================
+// CLOSE CART
+// ======================================
 
 function closeCart() {
     const modal = document.getElementById("cartModal");
@@ -249,9 +297,9 @@ function searchBooks() {
     const searchText = searchInput.value.toLowerCase().trim();
 
     const filteredBooks = getAllBooks().filter(book =>
-        book.title.toLowerCase().includes(searchText) ||
-        book.author.toLowerCase().includes(searchText) ||
-        book.category.toLowerCase().includes(searchText)
+        (book.title || "").toLowerCase().includes(searchText) ||
+        (book.author || "").toLowerCase().includes(searchText) ||
+        (book.category || "").toLowerCase().includes(searchText)
     );
 
     displayBooks(filteredBooks);
@@ -280,22 +328,25 @@ function filterCategory(category) {
     const filteredBooks = category === "all"
         ? books
         : books.filter(book =>
-            book.category.toLowerCase() === category.toLowerCase()
+            (book.category || "").toLowerCase() ===
+            category.toLowerCase()
         );
 
     displayBooks(filteredBooks);
 
     if (message) {
-        message.textContent = "Showing " + filteredBooks.length + " book(s).";
+        message.textContent =
+            "Showing " + filteredBooks.length + " book(s).";
     }
 }
 
 // ======================================
-// CUSTOMER NAME
+// DISPLAY CUSTOMER NAME
 // ======================================
 
 function displayCustomerName() {
-    const nameElement = document.getElementById("booknest-customer-name");
+    const nameElement =
+        document.getElementById("booknest-customer-name");
 
     if (!nameElement) return;
 
