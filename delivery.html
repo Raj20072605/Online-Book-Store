@@ -1,15 +1,12 @@
         const order = {
             orderId: "BN" + Date.now(),
-
             customerName: document.getElementById("customerName").value.trim(),
             username: localStorage.getItem("booknestUsername") || "Guest",
             phone: document.getElementById("phone").value.trim(),
-
             address: document.getElementById("address").value.trim(),
             city: document.getElementById("city").value.trim(),
             pincode: document.getElementById("pincode").value.trim(),
 
-            // Save both field names for compatibility
             payment: payment.value,
             paymentMethod: payment.value,
 
@@ -41,7 +38,6 @@
                 JSON.stringify(orders)
             );
 
-            // Verify saved order
             const savedOrders = JSON.parse(
                 localStorage.getItem("booknestOrders") || "[]"
             );
@@ -71,3 +67,4 @@
             message.textContent =
                 "Unable to save order. Please try again.";
         }
+        
