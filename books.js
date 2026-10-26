@@ -1,4 +1,7 @@
+// ==========================================
 // BOOKNEST DEFAULT BOOK CATALOGUE
+// 105 BOOKS WITH AUTOMATIC COVER IMAGES
+// ==========================================
 
 window.defaultBooks = [
     { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", price: 299, category: "Fiction" },
@@ -107,3 +110,18 @@ window.defaultBooks = [
     { id: 104, title: "Animal Farm", author: "George Orwell", price: 199, category: "Fiction" },
     { id: 105, title: "Nineteen Eighty-Four", author: "George Orwell", price: 299, category: "Fiction" }
 ];
+
+// ==========================================
+// AUTOMATIC BOOK COVER IMAGE URLS
+// ==========================================
+
+window.getBookCoverImage = function (book) {
+    if (book.image) return book.image;
+    if (book.imageUrl) return book.imageUrl;
+    if (book.coverImage) return book.coverImage;
+
+    // Search Open Library using the book title.
+    return "https://covers.openlibrary.org/b/title/" +
+        encodeURIComponent(book.title) +
+        "-L.jpg";
+};
