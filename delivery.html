@@ -1,204 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookNest - Delivery Order</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            color: #222;
-        }
-
-        header {
-            background: #131921;
-            color: white;
-            padding: 18px;
-            text-align: center;
-        }
-
-        header h1 {
-            margin: 0;
-            color: #ff9900;
-        }
-
-        .container {
-            max-width: 750px;
-            margin: 25px auto;
-            padding: 25px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px #ddd;
-        }
-
-        h2 {
-            color: #131921;
-            border-bottom: 2px solid #ff9900;
-            padding-bottom: 8px;
-        }
-
-        label {
-            display: block;
-            margin-top: 14px;
-            font-weight: bold;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 11px;
-            margin-top: 6px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 15px;
-        }
-
-        .order-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .total {
-            font-size: 21px;
-            font-weight: bold;
-            color: #087443;
-            margin-top: 20px;
-        }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            margin-top: 20px;
-            background: #ff9900;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #e68a00;
-        }
-
-        .back {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #0759a5;
-        }
-
-        .note {
-            background: #fff4d6;
-            padding: 12px;
-            border-radius: 5px;
-            line-height: 1.5;
-        }
-
-        #message {
-            font-weight: bold;
-            color: green;
-        }
-    </style>
-</head>
-
-<body>
-
-<header>
-    <h1>📚 BookNest</h1>
-    <p>Delivery Details & Order Confirmation</p>
-</header>
-
-<div class="container">
-
-    <h2>Customer Details</h2>
-
-    <form id="deliveryForm">
-
-        <label>Customer Name</label>
-        <input type="text" id="customerName" required>
-
-        <label>Phone Number</label>
-        <input type="tel" id="phone" pattern="[0-9]{10}"
-               maxlength="10" required
-               placeholder="10-digit mobile number">
-
-        <label>House / Flat Number</label>
-        <input type="text" id="house" required>
-
-        <label>Street / Area</label>
-        <input type="text" id="street" required>
-
-        <label>City</label>
-        <input type="text" id="city" required>
-
-        <label>State</label>
-        <input type="text" id="state" required>
-
-        <label>PIN Code</label>
-        <input type="text" id="pincode"
-               pattern="[0-9]{6}" maxlength="6" required>
-
-        <h2>Order Summary</h2>
-
-        <div id="orderItems">
-            Loading your cart...
-        </div>
-
-        <p class="total">
-            Total: ₹<span id="totalAmount">0</span>
-        </p>
-
-        <h2>Payment Method</h2>
-
-        <label>
-            <input type="radio" name="paymentMethod"
-                   value="Cash on Delivery" required
-                   style="width:auto">
-            Cash on Delivery
-        </label>
-
-        <label>
-            <input type="radio" name="paymentMethod"
-                   value="UPI Demo" style="width:auto">
-            UPI Demo
-        </label>
-
-        <label>
-            <input type="radio" name="paymentMethod"
-                   value="Card Demo" style="width:auto">
-            Card Demo
-        </label>
-
-        <p class="note">
-            Delivery estimate: 5–7 business days.
-            Delivery is free in this demonstration.
-            UPI and card options do not process real payments.
-        </p>
-
-        <button type="submit">Place Order</button>
-
-    </form>
-
-    <p id="message"></p>
-
-    <a class="back" href="index.html">← Back to BookNest</a>
-
-</div>
-
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+
     const cart = JSON.parse(
         localStorage.getItem("booknestCart") || "[]"
     );
 
     const itemsBox = document.getElementById("orderItems");
     const totalBox = document.getElementById("totalAmount");
+    const form = document.getElementById("deliveryForm");
+    const message = document.getElementById("message");
+    const submitButton = form.querySelector('button[type="submit"]');
 
     let total = 0;
 
@@ -209,13 +20,11 @@
         if (cart.length === 0) {
             itemsBox.textContent =
                 "Your cart is empty. Return to the shop and add books.";
-            document.querySelector(
-                'button[type="submit"]'
-            ).disabled = true;
+            submitButton.disabled = true;
             return;
         }
 
-        cart.forEach(function(book) {
+        cart.forEach(function (book) {
             const quantity = Number(book.quantity || 1);
             const price = Number(book.price || 0);
             const subtotal = quantity * price;
@@ -225,13 +34,12 @@
             const row = document.createElement("div");
             row.className = "order-item";
             row.textContent =
-                book.name + " × " + quantity +
-                " — ₹" + subtotal;
+                book.name + " × " + quantity + " — ₹" + subtotal;
 
             itemsBox.appendChild(row);
         });
 
-        totalBox.textContent = total;
+        totalBox.textContent = total.toLocaleString("en-IN");
     }
 
     showCart();
@@ -243,13 +51,20 @@
 
     document.getElementById("customerName").value = savedName;
 
-    document.getElementById("deliveryForm")
-        .addEventListener("submit", function(event) {
-
+    form.addEventListener("submit", function (event) {
         event.preventDefault();
 
         if (cart.length === 0) {
             alert("Your cart is empty.");
+            return;
+        }
+
+        const selectedPayment = document.querySelector(
+            'input[name="paymentMethod"]:checked'
+        );
+
+        if (!selectedPayment) {
+            alert("Please select a payment method.");
             return;
         }
 
@@ -273,7 +88,7 @@
                      customer.state + " - " +
                      customer.pincode,
             date: new Date().toLocaleString("en-IN"),
-            books: cart.map(function(book) {
+            books: cart.map(function (book) {
                 return {
                     name: book.name,
                     price: Number(book.price || 0),
@@ -281,38 +96,58 @@
                 };
             }),
             total: total,
-            paymentMethod:
-                document.querySelector(
-                    'input[name="paymentMethod"]:checked'
-                ).value,
+            paymentMethod: selectedPayment.value,
             status: "Order Placed"
         };
 
-        const orders = JSON.parse(
-            localStorage.getItem("booknestOrders") || "[]"
-        );
+        try {
+            const orders = JSON.parse(
+                localStorage.getItem("booknestOrders") || "[]"
+            );
 
-        orders.push(order);
+            if (!Array.isArray(orders)) {
+                throw new Error("Saved order history is invalid.");
+            }
 
-        localStorage.setItem(
-            "booknestOrders",
-            JSON.stringify(orders)
-        );
+            orders.push(order);
 
-        localStorage.removeItem("booknestCart");
+            localStorage.setItem(
+                "booknestOrders",
+                JSON.stringify(orders)
+            );
 
-        document.getElementById("message").textContent =
-            "Order placed successfully! Order ID: " + order.orderId;
+            const savedOrders = JSON.parse(
+                localStorage.getItem("booknestOrders") || "[]"
+            );
 
-        document.getElementById("deliveryForm").reset();
-        document.getElementById("customerName").value =
-            customer.name;
+            const orderSaved = savedOrders.some(function (savedOrder) {
+                return savedOrder.orderId === order.orderId;
+            });
 
-        document.querySelector(
-            'button[type="submit"]'
-        ).disabled = true;
+            if (!orderSaved) {
+                throw new Error("Order verification failed.");
+            }
+
+            localStorage.removeItem("booknestCart");
+
+            message.style.color = "green";
+            message.textContent =
+                "Order placed successfully! Order ID: " + order.orderId;
+
+            form.reset();
+            document.getElementById("customerName").value = customer.name;
+            submitButton.disabled = true;
+
+            console.log("BookNest order saved:", order);
+            console.log("All saved orders:", savedOrders);
+
+        } catch (error) {
+            console.error("BookNest order save failed:", error);
+
+            message.style.color = "red";
+            message.textContent =
+                "Order could not be saved. Please check the browser Console.";
+        }
     });
+});
 </script>
-
-</body>
-</html>
