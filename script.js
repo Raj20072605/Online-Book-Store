@@ -1,12 +1,12 @@
 // ======================================
 // BOOKNEST - COMPLETE SHOPPING SYSTEM
-// WITH BOOK COVER IMAGES
+// AUTOMATIC BOOK COVER IMAGES
 // ======================================
 
 let cart = JSON.parse(localStorage.getItem("booknestCart") || "[]");
 
 // ======================================
-// LOAD BOOKS
+// LOAD ALL BOOKS
 // ======================================
 
 function getAllBooks() {
@@ -20,22 +20,27 @@ function getAllBooks() {
 }
 
 // ======================================
-// GET BOOK IMAGE
+// GET BOOK COVER IMAGE
 // ======================================
 
 function getBookImage(book) {
-    // Use an image URL saved with the book, if available.
+    // Use an image URL saved with the book first.
     if (book.image) return book.image;
     if (book.imageUrl) return book.imageUrl;
     if (book.coverImage) return book.coverImage;
 
-    // Placeholder for books without an image URL.
+    // Use the automatic image function from books.js.
+    if (typeof window.getBookCoverImage === "function") {
+        return window.getBookCoverImage(book);
+    }
+
+    // Fallback if the image function is unavailable.
     return "https://placehold.co/300x420/f2e8d5/3d3028?text=" +
         encodeURIComponent(book.title || "Book Cover");
 }
 
 // ======================================
-// DISPLAY BOOKS WITH IMAGES
+// DISPLAY BOOKS WITH COVER IMAGES
 // ======================================
 
 function displayBooks(bookList) {
@@ -46,11 +51,11 @@ function displayBooks(bookList) {
     container.innerHTML = "";
 
     if (!bookList || bookList.length === 0) {
-        container.innerHTML = "<p>No books found.</p>";
+        container.textContent = "No books found.";
         return;
     }
 
-    bookList.forEach(book => {
+    bookList.forEach(function (book) {
         const card = document.createElement("article");
         card.className = "book-card";
 
@@ -68,10 +73,12 @@ function displayBooks(bookList) {
         image.alt = (book.title || "Book") + " cover";
         image.loading = "lazy";
 
+        // Show a fallback if the cover cannot be loaded.
         image.onerror = function () {
             this.onerror = null;
             this.src =
-                "https://placehold.co/300x420/f2e8d5/3d3028?text=Book+Cover";
+                "https://placehold.co/300x420/f2e8d5/3d3028?text=" +
+                encodeURIComponent(book.title || "Book Cover");
         };
 
         cover.appendChild(image);
@@ -90,8 +97,7 @@ function displayBooks(bookList) {
 
         const author = document.createElement("p");
         author.className = "author";
-        author.textContent =
-            "By " + (book.author || "Unknown Author");
+        author.textContent = "By " + (book.author || "Unknown Author");
 
         const rating = document.createElement("p");
         rating.className = "rating";
@@ -143,7 +149,9 @@ function saveCart() {
 // ======================================
 
 function addToCart(name, price) {
-    const existingBook = cart.find(book => book.name === name);
+    const existingBook = cart.find(function (book) {
+        return book.name === name;
+    });
 
     if (existingBook) {
         existingBook.quantity =
@@ -174,7 +182,7 @@ function updateCart() {
     let totalItems = 0;
     let totalPrice = 0;
 
-    cart.forEach(book => {
+    cart.forEach(function (book) {
         const quantity = Number(book.quantity || 1);
 
         totalItems += quantity;
@@ -195,11 +203,11 @@ function updateCart() {
     cartItems.innerHTML = "";
 
     if (cart.length === 0) {
-        cartItems.innerHTML = "<p>Your cart is empty.</p>";
+        cartItems.textContent = "Your cart is empty.";
         return;
     }
 
-    cart.forEach((book, index) => {
+    cart.forEach(function (book, index) {
         const item = document.createElement("div");
         item.className = "cart-item";
 
@@ -271,7 +279,7 @@ function closeCart() {
 }
 
 // ======================================
-// PROCEED TO CHECKOUT
+// CHECKOUT
 // ======================================
 
 function proceedToCheckout() {
@@ -296,11 +304,13 @@ function searchBooks() {
 
     const searchText = searchInput.value.toLowerCase().trim();
 
-    const filteredBooks = getAllBooks().filter(book =>
-        (book.title || "").toLowerCase().includes(searchText) ||
-        (book.author || "").toLowerCase().includes(searchText) ||
-        (book.category || "").toLowerCase().includes(searchText)
-    );
+    const filteredBooks = getAllBooks().filter(function (book) {
+        return (
+            (book.title || "").toLowerCase().includes(searchText) ||
+            (book.author || "").toLowerCase().includes(searchText) ||
+            (book.category || "").toLowerCase().includes(searchText)
+        );
+    });
 
     displayBooks(filteredBooks);
 
@@ -327,10 +337,10 @@ function filterCategory(category) {
 
     const filteredBooks = category === "all"
         ? books
-        : books.filter(book =>
-            (book.category || "").toLowerCase() ===
-            category.toLowerCase()
-        );
+        : books.filter(function (book) {
+            return (book.category || "").toLowerCase() ===
+                category.toLowerCase();
+        });
 
     displayBooks(filteredBooks);
 
