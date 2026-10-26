@@ -1,112 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookNest - Delivery Order</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b64;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .payment-option input {
+            width: auto;
+            margin: 0;
+        }
+
+        .payment-option label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .summary {
+            background: #f0f4fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: #243b64;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #message {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>BookNest Delivery</h1>
+
+    <div class="summary">
+        <h3>Order Summary</h3>
+        <div id="orderItems">Loading cart...</div>
+        <h3>Total: ₹<span id="totalAmount">0</span></h3>
+    </div>
+
+    <form id="deliveryForm">
+
+        <label for="customerName">Full Name</label>
+        <input type="text" id="customerName" required>
+
+        <label for="phone">Mobile Number</label>
+        <input type="tel" id="phone"
+               pattern="[0-9]{10}" maxlength="10" required>
+
+        <label for="address">Delivery Address</label>
+        <textarea id="address" rows="3" required></textarea>
+
+        <label for="city">City</label>
+        <input type="text" id="city" required>
+
+        <label for="pincode">PIN Code</label>
+        <input type="text" id="pincode"
+               pattern="[0-9]{6}" maxlength="6" required>
+
+        <label>Payment Method</label>
+
+        <div class="payment-option">
+            <input type="radio" id="cod"
+                   name="payment" value="Cash on Delivery" checked>
+            <label for="cod">Cash on Delivery</label>
+        </div>
+
+        <div class="payment-option">
+            <input type="radio" id="online"
+                   name="payment" value="Online Payment">
+            <label for="online">Online Payment</label>
+        </div>
+
+        <button type="submit">Place Order</button>
+
+        <p id="message"></p>
+
+    </form>
+
+    <a class="back" href="index.html">Continue Shopping</a>
+
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const cart = JSON.parse(
-        localStorage.getItem("booknestCart") || "[]"
-    );
-
-    const itemsBox = document.getElementById("orderItems");
-    const totalBox = document.getElementById("totalAmount");
-    const form = document.getElementById("deliveryForm");
+    const orderItems = document.getElementById("orderItems");
+    const totalAmount = document.getElementById("totalAmount");
+    const deliveryForm = document.getElementById("deliveryForm");
     const message = document.getElementById("message");
-    const submitButton = form.querySelector('button[type="submit"]');
 
-    let total = 0;
+    let cart = [];
 
-    function showCart() {
-        itemsBox.innerHTML = "";
-        total = 0;
+    try {
+        cart = JSON.parse(localStorage.getItem("booknestCart")) || [];
+    } catch (error) {
+        cart = [];
+    }
 
-        if (cart.length === 0) {
-            itemsBox.textContent =
-                "Your cart is empty. Return to the shop and add books.";
-            submitButton.disabled = true;
+    function displayCart() {
+        orderItems.innerHTML = "";
+
+        if (!Array.isArray(cart) || cart.length === 0) {
+            orderItems.textContent = "Your cart is empty.";
+            totalAmount.textContent = "0";
             return;
         }
 
+        let total = 0;
+
         cart.forEach(function (book) {
-            const quantity = Number(book.quantity || 1);
-            const price = Number(book.price || 0);
-            const subtotal = quantity * price;
+            const name = book.name || book.title || "Book";
+            const price = Number(book.price) || 0;
+            const quantity = Number(book.quantity) || 1;
 
-            total += subtotal;
+            total += price * quantity;
 
-            const row = document.createElement("div");
-            row.className = "order-item";
-            row.textContent =
-                book.name + " × " + quantity + " — ₹" + subtotal;
+            const item = document.createElement("p");
+            item.textContent = name + " x " + quantity +
+                " = ₹" + (price * quantity).toFixed(2);
 
-            itemsBox.appendChild(row);
+            orderItems.appendChild(item);
         });
 
-        totalBox.textContent = total.toLocaleString("en-IN");
+        totalAmount.textContent = total.toFixed(2);
     }
 
-    showCart();
+    displayCart();
 
-    const savedName =
-        localStorage.getItem("booknestUsername") ||
-        sessionStorage.getItem("booknestUsername") ||
-        "";
+    deliveryForm.addEventListener("submit", function (event) {
 
-    document.getElementById("customerName").value = savedName;
-
-    form.addEventListener("submit", function (event) {
         event.preventDefault();
 
         if (cart.length === 0) {
-            alert("Your cart is empty.");
+            message.style.color = "red";
+            message.textContent = "Your cart is empty. Add books first.";
             return;
         }
 
-        const selectedPayment = document.querySelector(
-            'input[name="paymentMethod"]:checked'
+        const payment = document.querySelector(
+            'input[name="payment"]:checked'
         );
 
-        if (!selectedPayment) {
-            alert("Please select a payment method.");
+        if (!payment) {
+            message.textContent = "Select a payment method.";
             return;
         }
 
-        const customer = {
-            name: document.getElementById("customerName").value.trim(),
-            phone: document.getElementById("phone").value.trim(),
-            house: document.getElementById("house").value.trim(),
-            street: document.getElementById("street").value.trim(),
-            city: document.getElementById("city").value.trim(),
-            state: document.getElementById("state").value.trim(),
-            pincode: document.getElementById("pincode").value.trim()
-        };
+        const total = cart.reduce(function (sum, book) {
+            return sum +
+                (Number(book.price) || 0) *
+                (Number(book.quantity) || 1);
+        }, 0);
 
         const order = {
             orderId: "BN" + Date.now(),
-            customerName: customer.name,
-            phone: customer.phone,
-            address: customer.house + ", " +
-                     customer.street + ", " +
-                     customer.city + ", " +
-                     customer.state + " - " +
-                     customer.pincode,
-            date: new Date().toLocaleString("en-IN"),
-            books: cart.map(function (book) {
-                return {
-                    name: book.name,
-                    price: Number(book.price || 0),
-                    quantity: Number(book.quantity || 1)
-                };
-            }),
+            customerName: document.getElementById("customerName").value.trim(),
+            username: localStorage.getItem("booknestUsername") || "Guest",
+            phone: document.getElementById("phone").value.trim(),
+            address: document.getElementById("address").value.trim(),
+            city: document.getElementById("city").value.trim(),
+            pincode: document.getElementById("pincode").value.trim(),
+            payment: payment.value,
+            items: cart,
             total: total,
-            paymentMethod: selectedPayment.value,
+            orderDate: new Date().toLocaleString(),
             status: "Order Placed"
         };
 
         try {
-            const orders = JSON.parse(
+            let orders = JSON.parse(
                 localStorage.getItem("booknestOrders") || "[]"
             );
 
             if (!Array.isArray(orders)) {
-                throw new Error("Saved order history is invalid.");
+                orders = [];
             }
 
             orders.push(order);
@@ -116,38 +253,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 JSON.stringify(orders)
             );
 
-            const savedOrders = JSON.parse(
-                localStorage.getItem("booknestOrders") || "[]"
-            );
-
-            const orderSaved = savedOrders.some(function (savedOrder) {
-                return savedOrder.orderId === order.orderId;
-            });
-
-            if (!orderSaved) {
-                throw new Error("Order verification failed.");
-            }
-
-            localStorage.removeItem("booknestCart");
-
             message.style.color = "green";
             message.textContent =
                 "Order placed successfully! Order ID: " + order.orderId;
 
-            form.reset();
-            document.getElementById("customerName").value = customer.name;
-            submitButton.disabled = true;
+            localStorage.removeItem("booknestCart");
 
-            console.log("BookNest order saved:", order);
-            console.log("All saved orders:", savedOrders);
+            cart = [];
+            deliveryForm.reset();
+            displayCart();
 
         } catch (error) {
-            console.error("BookNest order save failed:", error);
-
             message.style.color = "red";
-            message.textContent =
-                "Order could not be saved. Please check the browser Console.";
+            message.textContent = "Unable to save your order. Try again.";
         }
     });
+
 });
 </script>
+
+</body>
+</html>
