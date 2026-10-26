@@ -1,28 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookNest - Delivery Order</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b64;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .payment-option input {
+            width: auto;
+            margin: 0;
+        }
+
+        .payment-option label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .summary {
+            background: #f0f4fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: #243b64;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #36558b;
+        }
+
+        #message {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>BookNest Delivery</h1>
+
+    <div class="summary">
+        <h3>Order Summary</h3>
+        <div id="orderItems">Loading cart...</div>
+        <h3>Total: ₹<span id="totalAmount">0</span></h3>
+    </div>
+
+    <form id="deliveryForm">
+
+        <label for="customerName">Full Name</label>
+        <input type="text" id="customerName" required>
+
+        <label for="phone">Mobile Number</label>
+        <input type="tel" id="phone"
+               pattern="[0-9]{10}" maxlength="10" required>
+
+        <label for="address">Delivery Address</label>
+        <textarea id="address" rows="3" required></textarea>
+
+        <label for="city">City</label>
+        <input type="text" id="city" required>
+
+        <label for="pincode">PIN Code</label>
+        <input type="text" id="pincode"
+               pattern="[0-9]{6}" maxlength="6" required>
+
+        <label>Payment Method</label>
+
+        <div class="payment-option">
+            <input type="radio" id="cod"
+                   name="payment" value="Cash on Delivery" checked>
+            <label for="cod">Cash on Delivery</label>
+        </div>
+
+        <div class="payment-option">
+            <input type="radio" id="online"
+                   name="payment" value="Online Payment">
+            <label for="online">Online Payment</label>
+        </div>
+
+        <button type="submit" id="placeOrderButton">Place Order</button>
+
+        <p id="message"></p>
+
+    </form>
+
+    <a class="back" href="index.html">Continue Shopping</a>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const orderItems = document.getElementById("orderItems");
+    const totalAmount = document.getElementById("totalAmount");
+    const deliveryForm = document.getElementById("deliveryForm");
+    const message = document.getElementById("message");
+    const placeOrderButton = document.getElementById("placeOrderButton");
+
+    let cart = [];
+
+    // Load cart
+    try {
+        cart = JSON.parse(localStorage.getItem("booknestCart")) || [];
+
+        if (!Array.isArray(cart)) {
+            cart = [];
+        }
+    } catch (error) {
+        cart = [];
+    }
+
+    // Display cart
+    function displayCart() {
+
+        orderItems.innerHTML = "";
+
+        if (cart.length === 0) {
+            orderItems.textContent = "Your cart is empty.";
+            totalAmount.textContent = "0.00";
+            return;
+        }
+
+        let total = 0;
+
+        cart.forEach(function (book) {
+
+            const name = book.name || book.title ||
+                         book.bookName || "Book";
+
+            const price = Number(book.price) || 0;
+            const quantity = Number(book.quantity) || 1;
+
+            total += price * quantity;
+
+            const item = document.createElement("p");
+
+            item.textContent =
+                name + " x " + quantity +
+                " = ₹" + (price * quantity).toFixed(2);
+
+            orderItems.appendChild(item);
+        });
+
+        totalAmount.textContent = total.toFixed(2);
+    }
+
+    displayCart();
+
+    // Place order
+    deliveryForm.addEventListener("submit", function (event) {
+
+        event.preventDefault();
+
+        message.textContent = "";
+
+        if (cart.length === 0) {
+            message.style.color = "red";
+            message.textContent =
+                "Your cart is empty. Please add books first.";
+            return;
+        }
+
+        const paymentInput = document.querySelector(
+            'input[name="payment"]:checked'
+        );
+
+        if (!paymentInput) {
+            message.style.color = "red";
+            message.textContent =
+                "Please select a payment method.";
+            return;
+        }
+
+        const total = cart.reduce(function (sum, book) {
+
+            const price = Number(book.price) || 0;
+            const quantity = Number(book.quantity) || 1;
+
+            return sum + price * quantity;
+
+        }, 0);
+
+        // Save consistent book details
+        const orderBooks = cart.map(function (book) {
+
+            const bookName = book.name ||
+                             book.title ||
+                             book.bookName ||
+                             "Book";
+
+            return {
+                name: bookName,
+                title: bookName,
+                price: Number(book.price) || 0,
+                quantity: Number(book.quantity) || 1
+            };
+        });
+
+        const currentDate = new Date().toLocaleString();
+
         const order = {
             orderId: "BN" + Date.now(),
-            customerName: document.getElementById("customerName").value.trim(),
-            username: localStorage.getItem("booknestUsername") || "Guest",
-            phone: document.getElementById("phone").value.trim(),
-            address: document.getElementById("address").value.trim(),
-            city: document.getElementById("city").value.trim(),
-            pincode: document.getElementById("pincode").value.trim(),
 
-            payment: payment.value,
-            paymentMethod: payment.value,
+            customerName:
+                document.getElementById("customerName").value.trim(),
 
-            items: cart,
-            books: cart,
+            username:
+                localStorage.getItem("booknestUsername") || "Guest",
+
+            phone:
+                document.getElementById("phone").value.trim(),
+
+            address:
+                document.getElementById("address").value.trim(),
+
+            city:
+                document.getElementById("city").value.trim(),
+
+            pincode:
+                document.getElementById("pincode").value.trim(),
+
+            payment: paymentInput.value,
+            paymentMethod: paymentInput.value,
+
+            items: orderBooks,
+            books: orderBooks,
 
             total: total,
             totalAmount: total,
 
-            orderDate: new Date().toLocaleString(),
-            date: new Date().toLocaleString(),
+            orderDate: currentDate,
+            date: currentDate,
 
             status: "Order Placed"
         };
 
         try {
+
             let orders = JSON.parse(
                 localStorage.getItem("booknestOrders") || "[]"
             );
@@ -38,33 +320,49 @@
                 JSON.stringify(orders)
             );
 
+            // Verify that the order was saved
             const savedOrders = JSON.parse(
                 localStorage.getItem("booknestOrders") || "[]"
             );
 
-            const savedOrder = savedOrders.find(function (item) {
-                return item.orderId === order.orderId;
+            const savedOrder = savedOrders.find(function (saved) {
+                return saved.orderId === order.orderId;
             });
 
             if (!savedOrder) {
-                throw new Error("Order was not saved.");
+                throw new Error("Could not verify the saved order.");
             }
 
-            message.style.color = "green";
-            message.textContent =
-                "Order placed successfully! Order ID: " + order.orderId;
-
+            // Clear cart only after saving succeeds
             localStorage.removeItem("booknestCart");
 
             cart = [];
-            deliveryForm.reset();
+
             displayCart();
 
+            deliveryForm.reset();
+
+            message.style.color = "green";
+
+            message.textContent =
+                "Order placed successfully! Order ID: " +
+                order.orderId;
+
         } catch (error) {
-            console.error("Order saving error:", error);
+
+            console.error("BookNest checkout error:", error);
 
             message.style.color = "red";
+
             message.textContent =
-                "Unable to save order. Please try again.";
+                "Could not save your order. Please try again.";
+
         }
-        
+
+    });
+
+});
+</script>
+
+</body>
+</html>
